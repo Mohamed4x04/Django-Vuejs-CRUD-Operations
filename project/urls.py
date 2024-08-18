@@ -20,6 +20,6 @@ from todo.api import ToDoAPIViewSet
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/',include('todo.urls') ),
+    path('todo/',include('todo.urls')),
     
 ]
