@@ -37,7 +37,7 @@
                   </button>
                   <!-- Button trigger modal -->
                   <button type="button" class="btn btn-danger"
-                  v-on:click="todo.delete(item.id)">             <!-- make for -->
+                  v-on:click="todoDelete(item.id)">             <!-- use on click and add function of delete with item.id ,so when push button ll take id and send to fucntion in vuejs -->
                     Delete
                   </button></td>  
               </tr>
@@ -95,7 +95,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>   <!-- this i use to solve problem of didnt appearing anything -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.4/axios.min.js" integrity="sha512-6VJrgykcg/InSIutW2biLwA1Wyq+7bZmMivHw19fI+ycW0jIjsadm8wKQQLlfv3YUS4owfMDlZU38NtaAK6fSg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script type="text/javascript">
-      axios.defaults.xsrfCookieName='csrf_token'
+      axios.defaults.xsrfCookieName='csrftoken'
       axios.defaults.xsrfHeaderName="X-CSRFTOKEN"
 
       var app = new Vue({   /* make new app in VueJs */
@@ -109,38 +109,71 @@
           this.getTodo();     /* run todo i make in method */
         },
         methods:{                                                               /* here ll have functions */
-          getTodo:function(){                                       
+          getTodo:function(){                                        
             axios.get('/todo/api/todo/')                    /*  every method have seperated method  */
-            .then((response) => {
-              this.todo_list = response.data
+            .then((response) => {          /*  */
+              this.todo_list = response.data                  /*   */
               console.log(response)
-            } ) 
-          
-          },
-          
-          getToDO:function(){
-
-          },
-
-          todo.update:function(){
-            axios.get{`/todo/api/todo/${id}/`}
-            .then((response) => {
-              this.getToDO();
             }
-            )
-          },
 
-          todo.delete:function(){
+          )},
 
-          }
+        }  
+       
+        getToDO:function(){
+
         },
 
+        todoUpdate:function(){
+          axios.get{`/todo/api/todo/${id}/`}
+          .then((response) => {
+            this.getToDO();
+          }
+          )
+        },  
+
+        todoDelete:function(id){
+          axios.delete(`/todo/app/todo/${id}/`)   /* use axios with delete , so using link here with id to delete specfic item */
+          .then((response) => {
+            this.getToDO();
+          }
+          )
+
+        },
+
+        addToDo:function(){
+
+        },  
+
+      }),
+
         
         
 
 
-      })
+      
       
     </script>
   </body>
 </html>
+
+
+
+
+  {% comment %} /* getToDO:function(){
+
+  },
+
+  todo.update:function(){
+    axios.get{`/todo/api/todo/${id}/`}
+    .then((response) => {
+      this.getToDO();
+    }
+    )
+  },
+
+  todo.delete:function(){
+
+  }
+  },
+  */ {% endcomment %}
