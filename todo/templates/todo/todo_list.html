@@ -32,8 +32,9 @@
                 <td>${item.notes}</td>
                 <td>${item.done}</td>
                 <td><!-- Button trigger modal -->
-                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#EditModal">
-                    EditModal
+                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#EditModal" 
+                    v-on:click="getToDO(item.id)">
+                    Edit
                   </button>
                   <!-- Button trigger modal -->
                   <button type="button" class="btn btn-danger"
@@ -41,7 +42,7 @@
                     Delete
                   </button></td>  
               </tr>
-              
+               
             </tbody>
           </table>
         </div>
@@ -56,12 +57,24 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                ...
+                <form v-on:submit.prevent="addToDo()">
+                  <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Task</label>
+                    <input type="text" class="form-control" id="example" v-model="new_todo.title">
+                  </div>
+                  <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Notes</label>
+                    <input type="text" class="form-control" id="exampleF" v-model="new_todo.notes">
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary" value="Save changes">
+                    {% comment %} <button type="submit" class="btn btn-primary">Save changes</button> {% endcomment %}
+                    {% comment %} <button type="button" class="btn btn-primary">Save changes</button> {% endcomment %}
+                  </div>
+                </form>
               </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-              </div>
+              
             </div>
           </div>
         </div>          
@@ -77,11 +90,22 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
               <div class="modal-body">
-                ...
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <form v-on:submit.prevent="todoUpdate()">
+                  <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Task</label>
+                    <input type="text" class="form-control" id="example" v-model="current_todo.title">
+                  </div>
+                  <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Notes</label>
+                    <input type="text" class="form-control" id="exampleF" v-model="current_todo.notes">
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-primary" value="Save changes">
+                    {% comment %} <button type="submit" class="btn btn-primary">Save changes</button> {% endcomment %}
+                    {% comment %} <button type="button" class="btn btn-primary">Save changes</button> {% endcomment %}
+                  </div>
+                </form>
               </div>
             </div>
           </div>
@@ -98,54 +122,63 @@
       axios.defaults.xsrfCookieName='csrftoken'
       axios.defaults.xsrfHeaderName="X-CSRFTOKEN"
 
-      var app = new Vue({   /* make new app in VueJs */
-        el : '#starting',   /* mean id that i ll make realtime on id */                   /*  */
-        delimiters: ['${','}'], /* here i make different between using {} between VueJs & Django */
-        data:{                     /*  */
-          todo_list: []   /* here mean back data which i ll play with it  */
-          
-        },
-        mounted:function(){                                                     /* make what written in it be able to run */
-          this.getTodo();     /* run todo i make in method */
-        },
-        methods:{                                                               /* here ll have functions */
-          getTodo:function(){                                        
-            axios.get('/todo/api/todo/')                    /*  every method have seperated method  */
-            .then((response) => {          /*  */
-              this.todo_list = response.data                  /*   */
-              console.log(response)
-            }
+        var app = new Vue({   /* make new app in VueJs */
+          el : '#starting',   /* mean id that i ll make realtime on id */                   /*  */
+          delimiters: ['${','}'], /* here i make different between using {} between VueJs & Django */
+          data:{                     /*  */
+            todo_list: [],  /* here mean back data which i ll play with it  */
+            new_todo:{
+              'title': null,
+              'notes': null,
+            },
+            current_todo:{},
+          },
+          mounted:function(){                                                     /* make what written in it be able to run */
+            this.getTodo();     /* run todo i make in method */
+          },
+          methods:{                                                               /* here ll have functions */
+            getTodo:function(){       
+              console.log('in get data')                                 
+              axios.get('/todo/api/todo/')                    /*  every method have seperated method  */
+              .then((response) => {          /*  */
+                this.todo_list = response.data                  /*   */
+                console.log(response)
+              })
+            
+            },  
+            getToDO:function(id){
+              axios.get(`/todo/api/todo/${id}/`)
+              .then((response) =>{
+                this.current_todo = response.data;
+                // document.getElementById('#EditModal').modal('show');
 
-          )},
+              })
+            },
+            todoUpdate:function(){
+              console.log(this.current_todo)
+              axios.put(`/todo/api/todo/${this.current_todo.id}/`,this.current_todo)
+              .then((response)=>{
+                this.current_todo = response.data;
+                this.getTodo();
+              })
+            },  
+            todoDelete:function(id){
+              axios.delete(`/todo/app/todo/${id}/`)   /* use axios with delete , so using link here with id to delete specfic item */
+              .then((response) => {
+                this.getTodo();
+              })
 
-        }  
-       
-        getToDO:function(){
+            },
+            addToDo:function(){            
+              console.log('-------')               /* should link it with button in form above */
+              axios.post(`/todo/app/todo/`,this.new_todo)
+              .then((response) => {
+                this.getTodo();
+              })
+              },  
 
-        },
-
-        todoUpdate:function(){
-          axios.get{`/todo/api/todo/${id}/`}
-          .then((response) => {
-            this.getToDO();
           }
-          )
-        },  
-
-        todoDelete:function(id){
-          axios.delete(`/todo/app/todo/${id}/`)   /* use axios with delete , so using link here with id to delete specfic item */
-          .then((response) => {
-            this.getToDO();
-          }
-          )
-
-        },
-
-        addToDo:function(){
-
-        },  
-
-      }),
+        }),
 
         
         
